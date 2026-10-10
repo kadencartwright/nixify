@@ -23,7 +23,7 @@ sudo nixos-generate-config --root /mnt --show-hardware-config \
 
 This replaces the starter's intentional assertion with detected filesystems and initrd modules. Inspect the result. When Disko owns filesystems, reconcile overlapping declarations instead of blindly importing a second conflicting layout. Hardware generation describes mounted storage; it does not choose or prepare the disk.
 
-Set the host's bootloader and username to the values in the plan. `alex` in the starter is an example to replace. For a Git checkout, make the changed configuration files visible to Nix by staging those files, or evaluate an explicit `path:` reference; do not stage secrets. Generate/retain `flake.lock` with flakes enabled if it is not already present.
+Set the host's bootloader and username to the values in the plan. `alex` in the starter is an example to replace. For a Git checkout, make the changed configuration files visible to Nix by staging those files, or evaluate an explicit `path:` reference for a clean configuration directory. `path:` includes ignored files too, so keep plaintext secrets and unrelated private data outside this directory. Generate/retain `flake.lock` with flakes enabled if it is not already present.
 
 ## Evaluate, install, set credentials
 

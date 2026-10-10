@@ -24,6 +24,8 @@ def main(argv=None):
     parser.add_argument("--flake", type=Path, required=True, help="Local config directory")
     parser.add_argument("--host", default="demo", help="NixOS output name (default: demo)")
     parser.add_argument("--work-dir", type=Path, help="Separate build/disk directory")
+    parser.add_argument("--include-untracked", action="store_true",
+                        help="Use path: source; all files enter the Nix store. Review for secrets first.")
     args = parser.parse_args(argv)
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", args.host):
         parser.error("--host must be a simple NixOS output name")
@@ -35,8 +37,9 @@ def main(argv=None):
     if not shutil.which("nix"):
         parser.error("Nix is required. See https://nix.dev/install-nix")
 
-    # path: includes intended untracked config files, unlike Git flake filtering.
-    target = f"path:{flake}#nixosConfigurations.{args.host}.config.system.build.vm"
+    # Keep Git's tracked-file filtering unless the caller deliberately opts out.
+    source = f"path:{flake}" if args.include_untracked else str(flake)
+    target = f"{source}#nixosConfigurations.{args.host}.config.system.build.vm"
     nix = ["nix", "--extra-experimental-features", "nix-command flakes"]
     # Never update a pin implicitly during testing.
     lock_options = ["--no-write-lock-file", "--no-update-lock-file"]

@@ -31,9 +31,15 @@ class VMHelperTests(unittest.TestCase):
             self.assertEqual(vm.main(self.args + ["check"]), 0)
         command = invoke.call_args.args[0]
         self.assertIn("eval", command)
-        self.assertIn(f"path:{self.flake}#nixosConfigurations.demo-arm.config.system.build.vm.drvPath", command)
+        self.assertIn(f"{self.flake}#nixosConfigurations.demo-arm.config.system.build.vm.drvPath", command)
         self.assertIn("--no-update-lock-file", command)
         self.assertFalse(self.work.exists())
+
+    def test_untracked_source_requires_explicit_option(self):
+        with patch.object(vm, "invoke") as invoke:
+            vm.main(self.args + ["--include-untracked", "check"])
+        self.assertIn(f"path:{self.flake}#nixosConfigurations.demo-arm.config.system.build.vm.drvPath",
+                      invoke.call_args.args[0])
 
     def test_dry_build_does_not_launch_or_create_disk(self):
         with patch.object(vm, "invoke") as invoke:

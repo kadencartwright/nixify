@@ -25,12 +25,12 @@ Keep real disk layout, generated hardware config, passwords, private keys, and s
 
 ## Verify and hand off
 
-If Nix is available, generate a lock file for a new flake and evaluate the relevant outputs. Flakes inside Git only see tracked/staged files; use an isolated directory or stage only the user's intended config files within scope. Do not stage secrets.
+If Nix is available, generate a lock file for a new flake and evaluate the relevant outputs. Flakes inside Git only see tracked/staged files; use an isolated directory or stage only the user's intended config files within scope. Explicit `path:` references include all source files, including ignored files: use them only for a clean config directory without secrets or unrelated private data.
 
 ```bash
-nix --extra-experimental-features 'nix-command flakes' flake lock ./my-nixos
+nix --extra-experimental-features 'nix-command flakes' flake lock path:./my-nixos
 nix --extra-experimental-features 'nix-command flakes' eval --raw \
-  './my-nixos#nixosConfigurations.demo.config.system.build.vm.drvPath'
+  'path:./my-nixos#nixosConfigurations.demo.config.system.build.vm.drvPath'
 ```
 
 Use the actual output name for existing configs. The starter's physical host is intentionally incomplete until bootstrap supplies real hardware. Do not remove that assertion just to get a green check. Report validation that ran, its result, and what still needs hardware or a Linux builder. Offer VM testing as an optional next step; generating files does not imply permission to run `nixos-rebuild switch`.

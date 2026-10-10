@@ -40,13 +40,13 @@ On a Linux machine with Nix and flakes enabled:
 
 ```bash
 cp -R .agents/skills/nixify-configure/assets/starter ./my-nixos
-cd my-nixos
-nix flake lock
-nix build .#nixosConfigurations.demo.config.system.build.vm --out-link result-vm
-./result-vm/bin/run-nixify-demo-vm
+python3 .agents/skills/nixify-vm/scripts/vm.py --flake ./my-nixos \
+  --host demo --include-untracked run
 ```
 
-The console demo has a disposable `demo` account with password `demo`. Shut it down with `sudo poweroff`; the QEMU console escape is `Ctrl+A`, then `X`. For ARM Linux, use the `demo-arm` output and its generated runner. The VM skill's helper puts builds and virtual disks in a separate work directory.
+The console demo has a disposable `demo` account with password `demo`. Shut it down with `sudo poweroff`; the QEMU console escape is `Ctrl+A`, then `X`. For ARM Linux, change `--host demo` to `--host demo-arm`. The helper puts builds and virtual disks in a separate work directory.
+
+`--include-untracked` works with the freshly copied starter even inside another Git checkout. It copies all source files into the Nix store, so use a clean config folder without secrets. For an existing Git configuration, prefer tracked/staged files and the helper's default source handling.
 
 `demo` and `demo-arm` share the starter's `modules/use-cases.nix` with the real `my-pc` host. The physical host deliberately cannot evaluate until its hardware file is generated during installation. It has no disk identifiers, passwords, SSH keys, or personal settings copied from another machine.
 
