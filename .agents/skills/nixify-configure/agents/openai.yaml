@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nixify: Configure"
+  short_description: "Turn everyday use cases into a NixOS configuration"
+  default_prompt: "Use $nixify-configure to turn my Markdown use cases into an explained NixOS configuration."

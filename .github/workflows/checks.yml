@@ -1,0 +1,53 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m pip install -r requirements-dev.txt
+      - run: python3 scripts/validate.py
+
+  nix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Evaluate flake and starter guests
+        run: |
+          nix flake check --no-build
+          validation_dir=$(mktemp -d)
+          cp -R .agents/skills/nixify-configure/assets/starter/. "$validation_dir/"
+          cp flake.lock "$validation_dir/flake.lock"
+          nix eval --raw "$validation_dir#nixosConfigurations.demo.config.system.build.vm.drvPath"
+          nix eval --raw "$validation_dir#nixosConfigurations.demo-arm.config.system.build.vm.drvPath"
+          if nix eval --raw "$validation_dir#nixosConfigurations.my-pc.config.system.build.toplevel.drvPath" > "$validation_dir/hardware-check.log" 2>&1; then
+            printf '%s\n' 'Unprepared physical hardware should fail evaluation' >&2
+            exit 1
+          fi
+          python3 - "$validation_dir/hardware-check.log" <<'PY'
+          from pathlib import Path
+          import sys
+          message = Path(sys.argv[1]).read_text()
+          if 'Generate hardware-configuration.nix on the mounted target' not in message:
+              raise SystemExit(message)
+          print('Unprepared hardware correctly refused evaluation')
+          PY
+      - name: Boot the demo and verify promised tools
+        run: nix build .#checks.x86_64-linux.vm-boot -L

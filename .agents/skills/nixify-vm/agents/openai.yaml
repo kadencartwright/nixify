@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nixify: Try a VM"
+  short_description: "Test your NixOS configuration in a disposable VM"
+  default_prompt: "Use $nixify-vm to try my configuration in a disposable VM and verify my use cases."

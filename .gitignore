@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+result
+result-*
+*.qcow2
+*.img
+/inventory.json
+/use-cases.md
+/my-nixos/
+.nixify/

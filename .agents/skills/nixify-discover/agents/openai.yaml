@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nixify: Discover tools"
+  short_description: "Find migration requirements in your host and projects"
+  default_prompt: "Use $nixify-discover to inspect my selected projects and propose packages for my NixOS migration."

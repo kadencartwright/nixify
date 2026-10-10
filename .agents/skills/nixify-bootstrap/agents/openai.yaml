@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nixify: Install from ISO"
+  short_description: "Guide a prepared configuration through first boot"
+  default_prompt: "Use $nixify-bootstrap to help install my NixOS configuration from an official ISO."
